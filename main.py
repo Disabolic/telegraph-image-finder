@@ -118,7 +118,7 @@ for month in range(1,13):
         q_check.put((generated_url,month,day,1))
 
 tic = time.time()
-print('Start searching')
+print('Start download')
 threads_list = list()
 for x in range(thread_number):
     thread = threading.Thread(target=thread_worker)
@@ -151,7 +151,7 @@ if(len(buffer_list)>0):
         threads_list.append(thread)
     for thread in threads_list:
         thread.join()
-    print('End saving')
+    print('End download')
     toc = time.time()
     print('Download time: '+str(toc - tic))
 else:
