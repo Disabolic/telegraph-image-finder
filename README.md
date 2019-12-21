@@ -21,4 +21,8 @@ Below is an example of running a script with optional arguments:
 ```
 python main.py [tag] [number_of_threads_for_search] [number_of_threads_for_donwload]
 ```
+or
+```
+python main.py travel
+```
 If the images for this tag were found, a folder will be created inside the download folder with the tag name and available images will be loaded into it.
