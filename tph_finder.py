@@ -19,7 +19,6 @@ tag = 'default'
 thread_number = 64
 thread_number_save = 64
 argv_len = len(sys.argv)
-print(argv_len)
 if argv_len >= 2:  
     tag = sys.argv[1]
 if argv_len >= 3:
