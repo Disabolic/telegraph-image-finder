@@ -19,7 +19,7 @@ https://telegra.ph/tag-date[-number]
 
 Below is an example of running a script with optional arguments:
 ```
-python main.py [tag] [number_of_threads_for_search] [number_of_threads_for_donwload]
+python main.py [tag] [number_of_threads_for_search] [number_of_threads_for_download]
 ```
 or
 ```
