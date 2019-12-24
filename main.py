@@ -1,5 +1,4 @@
 #!/bin/env python3
-
 import requests
 import threading
 from bs4 import BeautifulSoup
@@ -9,6 +8,7 @@ import os
 import time
 import timeit
 import sys
+import random
 
 # main.py [tag] [threads] [threads_for_save]
 
@@ -21,7 +21,7 @@ tag = 'default'
 thread_number = 64
 thread_number_save = 64
 argv_len = len(sys.argv)
-if argv_len >= 2:  
+if argv_len >= 2:
     tag = sys.argv[1]
 if argv_len >= 3:
     thread_number = int(sys.argv[2])
@@ -64,9 +64,8 @@ def thread_worker():
                 mutex.acquire()
                 global_counter -= 1
                 mutex.release()
-            status = True
+                status = True
             response = requests.get(url)
-            #print(response.status_code)
             if response.ok:
                 # check images
                 soup = BeautifulSoup(response.text, 'html.parser')
@@ -84,16 +83,17 @@ def thread_worker():
                     index += 1
                     next_url = generate_url(tag,month,day,index)
                     q_check.put((next_url,month,day,index))
-        except queue.Empty:
+        except: #queue.Empty:
             mutex.acquire()
             if(status):
                 global_counter += 1
+                status = False
             if global_counter == thread_number:
                 leave = True
             mutex.release()
-            if leave: break
-            status = False
-            time.sleep(1)
+            if leave: 
+                break
+            time.sleep(random.uniform(0, 1))
   
 def thread_saver():
     template = "{0}/{1}-{2}-{3}-{4}-{5}.{6}"
@@ -104,16 +104,12 @@ def thread_saver():
                 response = requests.get(url)
                 if response.ok:
                     last = url.split('/')
-                    try:
-                        #with open(download_path+'/'+str(tag)+'-'+str(year)+'-'+str(month)+'-'+str(day)+'-'+str(index)+'.'+last[-1], "wb") as file:
-                        with open(template.format(download_path,tag,year,month,day,index,last[-1]), "wb") as file:
-                            file.write(response.content)
-                    except:
-                        break
+                    with open(template.format(download_path,tag,year,month,day,index,last[-1]), "wb") as file:
+                        file.write(response.content)
             except:
                 pass
         except queue.Empty:
-            break
+                break
 
 #######################################################
 
@@ -135,7 +131,7 @@ for thread in threads_list:
     thread.join()
 print('End searching')
 toc = time.time()
-print('Searching time: '+str(toc - tic))
+print('Searching time: '+str(round(toc - tic,1)) + ' seconds')
 
 buffer_list = queue_to_list(q_result)
 buffer_list = list(set(buffer_list))
@@ -160,6 +156,6 @@ if(len(buffer_list)>0):
         thread.join()
     print('End download')
     toc = time.time()
-    print('Download time: '+str(toc - tic))
+    print('Download time: '+str(round(toc - tic,1)) + ' seconds')
 else:
     print('Nothing to download')
