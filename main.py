@@ -44,15 +44,6 @@ def queue_to_list(q):
         l.append(q.get())
     return l
 
-def generate_url(url,index):
-    result = ''
-    if(index == 2):
-        result = url + '-' + str(index)
-    else:
-        url = url[:-len(str(index-1))]
-        result = url+str(index)
-    return result
-
 def generate_url(tag, month, day, index):
     if index == 1:
         template = "https://telegra.ph/{0}-{1}-{2}"
