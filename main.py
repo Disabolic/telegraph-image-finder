@@ -53,6 +53,15 @@ def generate_url(url,index):
         result = url+str(index)
     return result
 
+def generate_url(tag, month, day, index):
+    if index == 1:
+        template = "https://telegra.ph/{0}-{1}-{2}"
+        generated_url = template.format(tag, month, day)
+    else:
+        template = "https://telegra.ph/{0}-{1}-{2}-{3}"
+        generated_url = template.format(tag, month, day, index)
+    return generated_url
+
 def thread_worker():
     global global_counter
     status = True
@@ -82,7 +91,7 @@ def thread_worker():
                 # check page
                 if deep_check:
                     index += 1
-                    next_url = generate_url(url,index)
+                    next_url = generate_url(tag,month,day,index)
                     q_check.put((next_url,month,day,index))
         except queue.Empty:
             mutex.acquire()
@@ -96,6 +105,7 @@ def thread_worker():
             time.sleep(1)
   
 def thread_saver():
+    template = "{0}/{1}-{2}-{3}-{4}-{5}.{6}"
     while True:
         try:
             url,year,month,day,index = q_to_save.get(False)
@@ -103,8 +113,12 @@ def thread_saver():
                 response = requests.get(url)
                 if response.ok:
                     last = url.split('/')
-                    with open(download_path+'/'+str(tag)+'-'+str(year)+'-'+str(month)+'-'+str(day)+'-'+str(index)+'.'+last[-1], "wb") as file:
-                        file.write(response.content)
+                    try:
+                        #with open(download_path+'/'+str(tag)+'-'+str(year)+'-'+str(month)+'-'+str(day)+'-'+str(index)+'.'+last[-1], "wb") as file:
+                        with open(template.format(download_path,tag,year,month,day,index,last[-1]), "wb") as file:
+                            file.write(response.content)
+                    except:
+                        break
             except:
                 pass
         except queue.Empty:
@@ -114,8 +128,10 @@ def thread_saver():
 
 for month in range(1,13):
     for day in range(1,32):
-        generated_url = 'https://telegra.ph/'+tag+'-'+('0'+str(month) if month<10 else str(month))+'-'+('0'+str(day) if day<10 else str(day))
-        q_check.put((generated_url,month,day,1))
+        str_month = f'0{month}' if month < 10 else str(month)
+        str_day = f'0{day}' if day<10 else str(day)
+        new_url = generate_url(tag, str_month, str_day, 1)
+        q_check.put((new_url,month,day,1))
 
 tic = time.time()
 print('Start searching')
